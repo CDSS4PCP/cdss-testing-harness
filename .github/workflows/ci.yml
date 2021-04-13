@@ -1,0 +1,33 @@
+name: Lint and Test
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    name: Check lint
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+    - run: npm ci
+    - run: npm run lint
+      env:
+        CI: true
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+    - run: npm ci
+    - run: npm test
+      env:
+        TRANSLATION_SERVICE_URL: http://localhost:8080/cql/translator
+        INPUT_CQL: ./test/fixtures/cql
+        OUTPUT_ELM: ./test/fixtures/elm
+        VALUESETS: ./test/fixtures/valuesets
+        PATIENTS: ./test/fixtures/patients
