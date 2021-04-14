@@ -1,6 +1,6 @@
 # cql-testing-harness
 
-A utility for tranlsating, executing, and testing CQL libraries.
+A utility for translating, executing, and testing CQL libraries.
 
 ## Prerequisites
 
@@ -36,7 +36,7 @@ test-cql [-n] [-t path/to/test/directory]
 ```
 
 * `-n`: When this option is included, the script will not start a new cql-translation-service docker container. When using this option, ensure you have an instance of the translation service running on your machine at the URL specified in .env
-* `-t`: This option allows you to specify a specific directory or pattern that `jest` should use to run the tests. If ommitted, the script will use `jest`'s default which is any file that ends in `.test.js`
+* `-t`: This option allows you to specify a specific directory or pattern that `jest` should use to run the tests. If omitted, the script will use `jest`'s default which is any file that ends in `.test.js`
 
 This script will do the following:
 
@@ -175,4 +175,3 @@ This script will only do step 2. from above: translate all CQL in the`INPUT_CQL`
    ```
 
    
-
