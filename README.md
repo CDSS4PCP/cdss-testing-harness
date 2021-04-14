@@ -2,6 +2,8 @@
 
 A utility for translating, executing, and testing CQL libraries.
 
+![cql-testing-harness](https://user-images.githubusercontent.com/16297930/114772263-9a29e400-9d3b-11eb-9795-90a54af89f80.png)
+
 ## Prerequisites
 
 * [Docker](https://docker.com)
