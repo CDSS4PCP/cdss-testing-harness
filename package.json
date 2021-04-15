@@ -7,6 +7,9 @@
     "test-cql": "./src/scripts/run.js",
     "translate-cql": "./src/scripts/buildElm.js"
   },
+  "files": [
+    "src/*"
+  ],
   "scripts": {
     "lint": "eslint \"**/*.js\"",
     "lint:fix": "eslint \"./**/*.js\" --fix",
