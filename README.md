@@ -146,11 +146,11 @@ This script will only do step 2. from above: translate all CQL in the`INPUT_CQL`
 
 4. Create script(s) for running the tests/doing translation in `package.json`
 
-   ```json
+   ```
    "scripts": {
-   	"test": "test-cql -t path/to/test/directory",
+     "test": "test-cql -t path/to/test/directory",
      "translate": "translate-cql"
-   	...
+     ...
    }
    ...
    ```
