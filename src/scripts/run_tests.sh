@@ -52,7 +52,7 @@ if [ $? -ne 0 ] ; then exit 1 ; fi
 
 echo "> Running unit tests"
 
-jest --testPathPattern=$TEST_DIR
+npx jest --testPathPattern=$TEST_DIR
 
 if [ $NO_START -eq 0 ]
 then
