@@ -29,10 +29,13 @@ const client = new Client(TRANSLATION_SERVICE_URL);
  */
 function getCQLFiles(cqlPath) {
   // get all CQL files in cirrent directory
-  const files = fs.readdirSync(cqlPath).filter((f) => path.extname(f) === '.cql')
+  const files = fs
+    .readdirSync(cqlPath)
+    .filter((f) => path.extname(f) === '.cql')
     .map((f) => path.join(cqlPath, f));
   // get all directories in the currect directory
-  const subDirs = fs.readdirSync(cqlPath)
+  const subDirs = fs
+    .readdirSync(cqlPath)
     .filter((f) => fs.lstatSync(path.join(cqlPath, f)).isDirectory() && f !== 'node_modules')
     .map((dir) => path.join(cqlPath, dir));
   // recursively check each subdirectory for cql files and add them to the output array
