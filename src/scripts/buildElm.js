@@ -63,8 +63,12 @@ async function translateCQL() {
   });
 
   if (includeCQL && Object.keys(cqlRequestBody).length > 0) {
-    const elm = await client.convertCQL(cqlRequestBody);
-    return elm;
+    const resp = await client.convertCQL(cqlRequestBody);
+    if (resp.isAxiosError) {
+      throw resp;
+    }
+    // Else we have our resulting elm
+    return resp;
   }
 
   if (!includeCQL) {
