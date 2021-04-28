@@ -54,6 +54,8 @@ echo "> Running unit tests"
 
 npx jest --testPathPattern=$TEST_DIR
 
+if [ $? -ne 0 ] ; then exit 1 ; fi
+
 if [ $NO_START -eq 0 ]
 then
   echo "> Stopping cql-translation-service"

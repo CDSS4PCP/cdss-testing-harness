@@ -41,6 +41,7 @@ if errorlevel 1 exit 1
 echo ^> Running unit tests
 
 call npx jest --testPathPattern=%TEST_DIR%
+if errorlevel 1 exit 1
 
 if %NO_START%==0 (
     echo ^> Stopping cql-translation-service
