@@ -75,7 +75,7 @@ test('Should properly load multiple patient resources from array', () => {
 
 test('Should only load elm JSON with the specified identifier', () => {
   const secondElm = {
-    libray: {
+    library: {
       identifier: {
         id: 'fakeId',
         version: '1',
