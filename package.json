@@ -1,6 +1,6 @@
 {
   "name": "cql-testing-harness",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A tool for testing the development of CQL libraries",
   "main": "./src/index.js",
   "bin": {
