@@ -21,6 +21,31 @@ const TRANSLATION_SERVICE_URL = !process.env.TRANSLATION_SERVICE_URL
 const client = new Client(TRANSLATION_SERVICE_URL);
 
 /**
+ * Recursively gets all paths to CQL files in a given directory
+ *
+ * @param {String} cqlPath path to folder containing cql files
+ * or subdirectories containing cql files
+ * @returns {Array} Array of paths to cql files
+ */
+function getCQLFiles(cqlPath) {
+  // get all CQL files in cirrent directory
+  const files = fs
+    .readdirSync(cqlPath)
+    .filter((f) => path.extname(f) === '.cql')
+    .map((f) => path.join(cqlPath, f));
+  // get all directories in the currect directory
+  const subDirs = fs
+    .readdirSync(cqlPath)
+    .filter((f) => fs.lstatSync(path.join(cqlPath, f)).isDirectory() && f !== 'node_modules')
+    .map((dir) => path.join(cqlPath, dir));
+  // recursively check each subdirectory for cql files and add them to the output array
+  subDirs.forEach((dir) => {
+    files.push(...getCQLFiles(dir));
+  });
+  return files;
+}
+
+/**
  * Translate all cql
  *
  * @returns {Object} ELM from translator, or {} if nothing to translate
@@ -29,14 +54,10 @@ async function translateCQL() {
   const cqlPaths = cqlPathString.split(',');
   const cqlFiles = cqlPaths
     .map((p) => path.resolve(p))
-    .map((cqlPath) => {
-      const fileNames = fs.readdirSync(cqlPath).filter((f) => path.extname(f) === '.cql');
-      return fileNames.map((f) => path.join(cqlPath, f));
-    })
+    .map((cqlPath) => getCQLFiles(cqlPath))
     .flat();
   const cqlRequestBody = {};
   let includeCQL = false;
-
   cqlFiles.forEach((cqlFilePath) => {
     // Check if ELM already exists to see if translation is needed
     const correspondingElm = fs
