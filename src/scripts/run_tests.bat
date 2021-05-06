@@ -22,7 +22,7 @@ if %NO_START%==0 (
     echo ^> Starting cql-translation-service
     for /f %%i in ('docker ps ^| find "cql-translation-service"') do if not %%i==0 echo ^> Stopping existing container && docker stop %%i
 
-    docker run --name cql-translation-service --rm -d -p 8080:8080 cqframework/cql-translation-service:latest
+    docker run --name cql-translation-service --rm -d -p 8080:8080 cqframework/cql-translation-service:v1.5.2
 
     :: Wait for cql-translation-service
     echo ^> Waiting for server
