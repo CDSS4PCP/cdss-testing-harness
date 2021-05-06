@@ -30,7 +30,7 @@ then
     docker stop $RUNNING_PID
   fi
 
-  docker run --name cql-translation-service --rm -d -p 8080:8080 cqframework/cql-translation-service:latest
+  docker run --name cql-translation-service --rm -d -p 8080:8080 cqframework/cql-translation-service:v1.5.2
 
   echo "> Waiting for server"
 
