@@ -15,9 +15,7 @@ if (!(process.env.INPUT_CQL && process.env.OUTPUT_ELM)) {
 const cqlPathString = path.resolve(process.cwd(), process.env.INPUT_CQL);
 const buildPathString = path.resolve(process.cwd(), process.env.OUTPUT_ELM);
 
-const TRANSLATION_SERVICE_URL = !process.env.TRANSLATION_SERVICE_URL
-  ? 'http://localhost:8080/cql/translator'
-  : process.env.TRANSLATION_SERVICE_URL;
+const TRANSLATION_SERVICE_URL = !process.env.TRANSLATION_SERVICE_URL ? 'http://localhost:8080/cql/translator' : process.env.TRANSLATION_SERVICE_URL;
 const client = new Client(TRANSLATION_SERVICE_URL);
 
 /**
@@ -33,6 +31,7 @@ function getCQLFiles(cqlPath) {
     .readdirSync(cqlPath)
     .filter((f) => path.extname(f) === '.cql')
     .map((f) => path.join(cqlPath, f));
+
   // get all directories in the currect directory
   const subDirs = fs
     .readdirSync(cqlPath)
@@ -42,6 +41,7 @@ function getCQLFiles(cqlPath) {
   subDirs.forEach((dir) => {
     files.push(...getCQLFiles(dir));
   });
+
   return files;
 }
 
@@ -79,7 +79,7 @@ async function translateCQL() {
     }
 
     cqlRequestBody[path.basename(cqlFilePath, '.cql')] = {
-      cql: fs.readFileSync(cqlFilePath, 'utf8'),
+      cql: fs.readFileSync(cqlFilePath, 'utf8'), path: path.relative(cqlPathString, cqlFilePath),
     };
   });
 
@@ -88,6 +88,7 @@ async function translateCQL() {
     if (resp.isAxiosError) {
       throw resp;
     }
+    Object.keys(cqlRequestBody).forEach((key) => resp[key].path = cqlRequestBody[key].path);
     // Else we have our resulting elm
     return resp;
   }
@@ -121,11 +122,17 @@ function processErrors(elm) {
 
 translateCQL()
   .then((libraries) => {
-    Object.entries(libraries).forEach(([libName, elm]) => {
-      const errors = processErrors(elm);
+    Object.entries(libraries).forEach(([libName, translated]) => {
+      const errors = processErrors(translated);
       if (errors.length === 0) {
-        const elmPath = path.join(buildPathString, `${libName}.json`);
-        fs.writeFileSync(elmPath, JSON.stringify(elm), 'utf8');
+        const directory = path.join(buildPathString, path.dirname(translated.path));
+
+        if (!fs.existsSync(directory)) {
+          fs.mkdirSync(directory, { recursive: true });
+        }
+        const elmPath = path.join(directory, `${libName}.json`);
+
+        fs.writeFileSync(elmPath, JSON.stringify(translated.library), 'utf8');
         console.log(`Wrote ELM to ${elmPath}`);
       } else {
         console.error('Error translating to ELM');
