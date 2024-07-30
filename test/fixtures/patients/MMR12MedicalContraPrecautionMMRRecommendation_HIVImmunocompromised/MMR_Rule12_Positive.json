@@ -1,0 +1,51 @@
+{
+  "resourceType": "Bundle",
+  "id": "MMR12MedicalContraPrecautionMMRRecommendation_HIVImmunocompromised",
+  "type": "collection",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:patient-1",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "77f19825-db1f-4f92-9f4c-2e64e412bf2a",
+        "name": [
+          {
+            "given": [
+              "Jill"
+            ],
+            "family": "Smith"
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1998-07-12"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:condition-1",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "a6d0e2b1-03d4-4929-82db-aeae27948ecd",
+        "status": "active",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "code": {
+          "coding": [
+            {
+              "code": "86406008",
+              "display": "Human immunodeficiency virus infection (disorder)",
+              "system": "http://snomed.info/sct"
+            }
+          ],
+          "text": "Human immunodeficiency virus infection (disorder)"
+        },
+        "onsetDateTime": "2023-08-12T00:00:00.000Z"
+      }
+    }
+  ]
+}

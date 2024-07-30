@@ -1,0 +1,44 @@
+{
+  "resourceType": "Bundle",
+  "id": "MMR6regular12months_4yrs_OneDoseOutOf12to15MonRecommendation2",
+  "type": "collection",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:patient-1",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "77f19825-db1f-4f92-9f4c-2e64e412bf2a",
+        "name": [
+          {
+            "given": [
+              "John"
+            ],
+            "family": "Smith"
+          }
+        ],
+        "gender": "male",
+        "birthDate": "2023-05-30"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:immunization-1",
+      "resource": {
+        "resourceType": "Immunization",
+        "id": "a6d0e2b1-03d4-4929-82db-aeae27948ecd",
+        "status": "completed",
+        "primarySource": true,
+        "vaccineCode": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/cvx",
+              "code": "94",
+              "display": "measles, mumps, rubella, and varicella virus vaccine"
+            }
+          ],
+          "text": "measles, mumps, rubella, and varicella virus vaccine"
+        },
+        "occurrenceDateTime": "2024-04-03"
+      }
+    }
+  ]
+}
