@@ -132,7 +132,7 @@ translateCQL()
         }
         const elmPath = path.join(directory, `${libName}.json`);
 
-        fs.writeFileSync(elmPath, JSON.stringify(translated.library), 'utf8');
+        fs.writeFileSync(elmPath, JSON.stringify(translated), 'utf8');
         console.log(`Wrote ELM to ${elmPath}`);
       } else {
         console.error('Error translating to ELM');

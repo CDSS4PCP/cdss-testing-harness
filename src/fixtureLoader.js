@@ -2,14 +2,23 @@ const fs = require('fs');
 const path = require('path');
 
 /**
- * Load a directory of JSON files
+ * Recursively load a directory of JSON files
  *
  * @param {string} pathToDir absolute path from the caller of where directory is located
  * @returns {Array} array of JSON parsed fixtures
  */
 function loadJSONFromDirectory(pathToDir) {
-  const filesInDir = fs.readdirSync(pathToDir).filter((f) => path.extname(f) === '.json');
-  return filesInDir.map((f) => JSON.parse(fs.readFileSync(path.join(pathToDir, f), 'utf8')));
+  const filesInDir = fs.readdirSync(pathToDir)
+    .filter((f) => path.extname(f) === '.json');
+  const directories = fs.readdirSync(pathToDir)
+    .filter((f) => fs.lstatSync(path.join(pathToDir, f))
+      .isDirectory());
+
+  const directoryContents = directories.map((f) => loadJSONFromDirectory(path.join(pathToDir, f)));
+
+  const selfContents = filesInDir.map((f) => JSON.parse(fs.readFileSync(path.join(pathToDir, f), 'utf8')));
+
+  return [...directoryContents, ...selfContents].flat();
 }
 
 /**
@@ -34,7 +43,11 @@ function defaultLoadElm() {
     throw Error('Unable to find env value for OUTPUT_ELM; make sure you set this in your .env file');
   }
   const elmPath = path.resolve(process.cwd(), process.env.OUTPUT_ELM);
-  return loadJSONFromDirectory(elmPath);
+
+  const libraries = {};
+  loadJSONFromDirectory(elmPath)
+    .forEach((l) => libraries[l.library.identifier.id] = l);
+  return libraries;
 }
 
 /**
@@ -48,7 +61,8 @@ function defaultLoadPatients() {
     throw Error('Unable to find env value for PATIENTS; make sure you set this in your .env file');
   }
   const patientsPath = path.resolve(process.cwd(), process.env.PATIENTS);
-  return loadJSONFromDirectory(patientsPath);
+  let patients = loadJSONFromDirectory(patientsPath);
+  return patients;
 }
 
 /**

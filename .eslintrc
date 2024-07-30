@@ -1,0 +1,27 @@
+{
+  "env": {
+    "node": true,
+    "jest": true
+  },
+  "extends": [
+    "eslint:recommended"
+  ],
+  "plugins": [
+    "no-secrets"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 11
+  },
+  "rules": {
+    "no-console": "off",
+    "no-underscore-dangle": [
+      2,
+      {
+        "allow": [
+          "_json"
+        ]
+      }
+    ],
+    "no-secrets/no-secrets": "error"
+  }
+}

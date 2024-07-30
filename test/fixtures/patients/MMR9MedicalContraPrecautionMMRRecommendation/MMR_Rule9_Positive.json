@@ -1,0 +1,43 @@
+{
+  "resourceType": "Bundle",
+  "id": "MMR9MedicalContraPrecautionMMRRecommendation",
+  "type": "collection",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:patient-1",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "77f19825-db1f-4f92-9f4c-2e64e412bf2a",
+        "name": [
+          {
+            "given": [
+              "Jill"
+            ],
+            "family": "Smith"
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1998-07-12"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:condition-1",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "a6d0e2b1-03d4-4929-82db-aeae27948ecd",
+        "status": "active",
+        "code": {
+          "coding": [
+            {
+              "code": "237244005",
+              "display": "Single pregnancy (finding)",
+              "system": "http://snomed.info/sct"
+            }
+          ],
+          "text": "Single pregnancy (finding)"
+        },
+        "onsetDateTime": "2023-08-12T00:00:00.000Z"
+      }
+    }
+  ]
+}

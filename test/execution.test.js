@@ -1,103 +1,342 @@
 const dotenv = require('dotenv');
-const { execute } = require('../src/execution');
-const { defaultLoadElm, defaultLoadPatients } = require('../src/fixtureLoader');
+// const { execute } = require('../src/execution');
+// const { defaultLoadElm, defaultLoadPatients } = require('../src/fixtureLoader');
 
+const path = require('path');
+const fs = require('fs');
+const yaml = require('js-yaml');
+const cql = require('cql-execution');
+const cqlfhir = require('cql-exec-fhir');
+const vsac = require('cql-exec-vsac');
+const date = require('date-and-time');
+const {
+  createBundle,
+  getCurrentTimestamp,
+  executeCql,
+  getListOfExpectedParameters,
+  getListOfExpectedLibraries,
+  FhirTypes,
+  UsageStatus,
+  ContainerTypes,
+} = require('cdss-common/src/cdss-module');
+const yaml2fhir = require('../src/yaml2fhir/yaml2fhir');
+const {
+  defaultLoadElm,
+  defaultLoadPatients,
+} = require('../src');
+const {
+  getCurrentTime,
+  getNumberOfDays,
+  getNumberOfMonths,
+  getNumberOfWeeks,
+} = require('./timeUtil');
 // Initialize the env variables
 dotenv.config();
 
-let valueSetMap;
-let elm;
+const API_KEY = process.env.VSAC_API_KEY;
+const VALUESETS_CACHE = process.env.VALUESETS;
+let elms;
 let patientBundles;
-let firstPatientBundle;
 
 beforeAll(() => {
   // Set up necessary data for cql-execution
-  valueSetMap = {
-    SteamVS: {
-      1: [
-        {
-          code: 'example-code',
-          system: 'www.example.com',
-        },
-      ],
-    },
-  };
+  elms = defaultLoadElm();
 
-  elm = defaultLoadElm();
-  patientBundles = defaultLoadPatients();
-  [firstPatientBundle] = patientBundles;
-});
-test('Should properly match on resources in execution', () => {
-  const expectedCondition = firstPatientBundle.entry[0].resource;
-  const executionResults = execute(elm, firstPatientBundle, valueSetMap, 'testLib');
-  const patientID = '123';
-
-  expect(executionResults.patientResults[patientID].Condition).toHaveLength(1);
-  expect(executionResults.patientResults[patientID].Condition[0]._json).toEqual(expectedCondition);
+  // patientBundles = defaultCustomPatients();
+  const bundles = defaultLoadPatients();
+  patientBundles = {};
+  bundles.forEach((bundle) => {
+    patientBundles[bundle.id] = bundle;
+  });
 });
 
-test('Should exclude resources with values outside of the valueSet Map during execution', () => {
-  // Changing the expected code within the valueSetMap to a code not included in the patient bundle
-  const alteredVSMap = {
-    SteamVS: {
-      1: [
-        {
-          code: 'second-example-code',
-          system: 'www.example.com',
-        },
-      ],
-    },
-  };
-  const executionResults = execute(elm, firstPatientBundle, alteredVSMap, 'testLib');
-  const patientID = '123';
+describe('MMR Rule 1 Tests', () => {
+  test('VaccineName should be Measles, Mumps, and Rubella Virus Vaccine, Patient birthdate should be < 12 mon, No previous dose, Recommendations should be Schedule 1st dose 12-15 mon of age AND Schedule 2nd dose 4-6 yr of age', async () => {
+    const rule = elms.MMR1regularyoungerthan12monthsNoMMRRecommendation;
 
-  // There should be no matching Condition resources within the execution results
-  expect(executionResults.patientResults[patientID].Condition).toHaveLength(0);
+    const patient = patientBundles.MMR1regularyoungerthan12monthsNoMMRRecommendation.entry[0].resource;
+    const libraries = {
+      FHIRHelpers: elms.FHIRHelpers,
+      Common: elms.MMR_Common_Library,
+    };
+    const codeService = new vsac.CodeService(VALUESETS_CACHE, true, true);
+    const result = await executeCql(patient, rule, libraries, { 'Imm': [] }, codeService, API_KEY);
+    expect(result)
+      .not
+      .toBeNull();
+    // console.log(JSON.stringify(result, null, 2));
+    const patientResult = result[patient.id];
+
+    const patientBod = new Date(patient.birthDate);
+
+    const now = new Date();
+
+    const ageInMonths = getNumberOfMonths(patientBod, now);
+
+    expect(patientResult.VaccineName)
+      .toEqual('Measles, Mumps, and Rubella Virus Vaccine');
+    expect(ageInMonths)
+      .toBeLessThan(12);
+    expect(ageInMonths)
+      .toBeGreaterThan(0);
+
+    expect(patientResult.Recommendations)
+      .toHaveLength(2);
+    expect(patientResult.Recommendations[0].recommendation)
+      .toEqual(expect.stringContaining('Recommendation 1: Schedule 1st dose MMR when patient is 12-15 months'));
+
+    expect(patientResult.Recommendations[1].recommendation)
+      .toEqual(expect.stringContaining('Recommendation 2: Schedule 2nd dose MMR when patient is 4-6 years'));
+  });
 });
 
-test('Should properly load patient resource from bundle', () => {
-  const executionResults = execute(elm, firstPatientBundle, valueSetMap, 'testLib');
-  const patientID = '123';
+describe('MMR Rule 2 Tests ', () => {
+  test('VaccineName should be Measles, Mumps, and Rubella Virus Vaccine, Patient birthdate should be >= 12 mon AND <= 47 mon, No previous dose, Recommendations should be Administer 1st dose AND Schedule 2nd dose 4-6 yr of age', async () => {
+    const rule = elms.MMR2regularyoungerthan12_47monthsNoMMRRecommendation;
+    const patient = patientBundles.MMR2regularyoungerthan12_47monthsNoMMRRecommendation.entry[0].resource;
+    const libraries = {
+      FHIRHelpers: elms.FHIRHelpers,
+      Common: elms.MMR_Common_Library,
+    };
+    const codeService = new vsac.CodeService(VALUESETS_CACHE, true);
+    const result = await executeCql(patient, rule, libraries, { 'Imm': [] }, codeService, API_KEY);
+    expect(result)
+      .not
+      .toBeNull();
 
-  const returnedPatient = executionResults.patientResults[patientID].Patient._json;
-  expect(returnedPatient).toEqual(firstPatientBundle.entry[1].resource);
+    const patientResult = result[patient.id];
+
+    const patientBod = new Date(patient.birthDate);
+
+    const now = new Date();
+
+    const ageInMonths = getNumberOfMonths(patientBod, now);
+    expect(patientResult.VaccineName)
+      .toEqual('Measles, Mumps, and Rubella Virus Vaccine');
+    expect(ageInMonths)
+      .toBeGreaterThanOrEqual(12);
+    expect(ageInMonths)
+      .toBeLessThanOrEqual(47);
+
+    expect(patientResult.Recommendations)
+      .toHaveLength(2);
+    expect(patientResult.Recommendations[0].recommendation)
+      .toEqual(expect.stringContaining('Recommendation 1: Adminster 1st dose'));
+
+    expect(patientResult.Recommendations[1].recommendation)
+      .toEqual(expect.stringContaining('Schedule 2nd dose 4-6 yr of age'));
+  });
 });
 
-test('Should properly load multiple patient resources from array', () => {
-  const executionResults = execute(elm, patientBundles, valueSetMap, 'testLib');
-  const patientIDs = ['123', '456'];
+describe('MMR Rule 3 Tests ', () => {
+  test('VaccineName should be Measles, Mumps, and Rubella Virus Vaccine, Patient birthdate should be > 47 mon AND <= 18 yrs, No previous dose, Recommendations should be Administer 1st dose AND Schedule 2nd dose > = 4 wk of 1st dose', async () => {
+    const rule = elms.MMR3regularyoungerthan47months_18yrsNoMMRRecommendation;
+    const patient = patientBundles.MMR3regularyoungerthan47months_18yrsNoMMRRecommendation.entry[0].resource;
+    const libraries = {
+      FHIRHelpers: elms.FHIRHelpers,
+      Common: elms.MMR_Common_Library,
+    };
+    const codeService = new vsac.CodeService(VALUESETS_CACHE, true);
+    const result = await executeCql(patient, rule, libraries, { 'Imm': [] }, codeService, API_KEY);
+    expect(result)
+      .not
+      .toBeNull();
 
-  const returnedPatient1 = executionResults.patientResults[patientIDs[0]].Patient._json;
-  expect(returnedPatient1).toEqual(patientBundles[0].entry[1].resource);
-  const returnedPatient2 = executionResults.patientResults[patientIDs[1]].Patient._json;
-  expect(returnedPatient2).toEqual(patientBundles[1].entry[1].resource);
+    const patientResult = result[patient.id];
+
+    const patientBod = new Date(patient.birthDate);
+
+    const now = new Date();
+
+    const ageInMonths = getNumberOfMonths(patientBod, now);
+    expect(patientResult.VaccineName)
+      .toEqual('Measles, Mumps, and Rubella Virus Vaccine');
+    expect(ageInMonths)
+      .toBeGreaterThanOrEqual(47);
+    expect(ageInMonths)
+      .toBeLessThanOrEqual(18 * 12);
+
+    expect(patientResult.Recommendations)
+      .toHaveLength(2);
+    expect(patientResult.Recommendations[0].recommendation)
+      .toEqual(expect.stringContaining('Recommendation 1: Adminster 1 dose'));
+
+    expect(patientResult.Recommendations[1].recommendation)
+      .toEqual(expect.stringContaining('Recommendation 2: Schedule 2nd dose > = 4 wk of 1st dose'));
+  });
 });
 
-test('Should only load elm JSON with the specified identifier', () => {
-  const secondElm = {
-    library: {
-      identifier: {
-        id: 'fakeId',
-        version: '1',
-      },
-    },
-  };
+describe('MMR Rule 4 Tests ', () => {
+  test('VaccineName should be Measles, Mumps, and Rubella Virus Vaccine, Patient birthdate should be > 12 mon AND < 4 yr, Single does of MMR administered at 12 - 15 mon of age, Recommendation should be Schedule 2nd dose 4-6 yr of age', async () => {
+    const rule = elms.MMR4regular12months_4yrs_OneMMRRecommendation;
+    const patient = patientBundles.MMR4regular12months_4yrs_OneMMRRecommendation.entry[0].resource;
 
-  // Run the execution utility with testLib elm as well as the secondary Elm
-  const executionResults = execute([elm[0], secondElm], firstPatientBundle, valueSetMap, 'testLib');
+    // const patient = firstPatientBundle.entry[0].resource;
+    const immunization = patientBundles.MMR4regular12months_4yrs_OneMMRRecommendation.entry[1].resource;
+    const immBundle = {
+      resourceType: 'Bundle',
+      entry: [{ resource: immunization }],
+    };
+    const libraries = {
+      FHIRHelpers: elms.FHIRHelpers,
+      Common: elms.MMR_Common_Library,
+    };
+    const codeService = new vsac.CodeService(VALUESETS_CACHE, true);
+    const result = await executeCql(patient, rule, libraries, { Imm: immBundle }, codeService, API_KEY);
 
-  const patientID = '123';
+    const patientResult = result[patient.id];
 
-  // Exectuion utility should filter included Elm and only use the testLib defintiions
-  expect(executionResults.localIdPatientResultsMap[patientID]).toHaveProperty('testLib');
-  expect(executionResults.localIdPatientResultsMap[patientID]).not.toHaveProperty('fakeId');
+    const patientBod = new Date(patient.birthDate);
+    const immunizationAdminDate = new Date(immunization.occurrenceDateTime);
+
+    const now = new Date();
+    const ageInMonths = getNumberOfMonths(patientBod, now);
+    const adminAgeInMonths = getNumberOfMonths(patientBod, immunizationAdminDate);
+
+    expect(patientResult.VaccineName)
+      .toEqual('Measles, Mumps, and Rubella Virus Vaccine');
+    expect(ageInMonths)
+      .toBeLessThan(4 * 12);
+    expect(ageInMonths)
+      .toBeGreaterThan(12);
+    expect(adminAgeInMonths)
+      .toBeLessThan(15);
+    expect(adminAgeInMonths)
+      .toBeGreaterThan(12);
+    expect(immBundle.entry)
+      .toHaveLength(1);
+    expect(patientResult.Recommendations)
+      .toHaveLength(1);
+    expect(patientResult.Recommendations[0].recommendation)
+      .toEqual(expect.stringContaining('Schedule 2nd dose MMR when patient is 4-6 years old'));
+  });
 });
 
-test('Should default to loading elm with the mCODE identifier', () => {
-  // Pulling elm with the mCODE identifier along with its valueSetMap
+describe('MMR Rule 5 Tests ', () => {
+  test('VaccineName should be Measles, Mumps, and Rubella Virus Vaccine, Patient birthdate should be > 12 mon AND < 4 yr, Single does of MMR administered at 12 - 15 mon of age, Recommendation should be Schedule 2nd dose 4-6 yr of age', async () => {
+    const rule = elms.MMR5regular12months_4yrs_OneDoseOutOf12to15MonRecommendation;
+    const patient = patientBundles.MMR5regular12months_4yrs_OneDoseOutOf12to15MonRecommendation1.entry[0].resource;
 
-  // Running the execution utility without a libraryID argument
-  expect(() => execute(elm, firstPatientBundle, valueSetMap)).toThrow(
-    Error('Cannot find ELM library with library id mCODE'),
-  );
+    const immunization = patientBundles.MMR5regular12months_4yrs_OneDoseOutOf12to15MonRecommendation1.entry[1].resource;
+    const immBundle = {
+      resourceType: 'Bundle',
+      entry: [{ resource: immunization }],
+    };
+    const libraries = {
+      FHIRHelpers: elms.FHIRHelpers,
+      Common: elms.MMR_Common_Library,
+    };
+    const codeService = new vsac.CodeService(VALUESETS_CACHE, true);
+    const result = await executeCql(patient, rule, libraries, { Imm: immBundle }, codeService, API_KEY);
+
+    const patientResult = result[patient.id];
+
+    const patientBod = new Date(patient.birthDate);
+    const immunizationAdminDate = new Date(immunization.occurrenceDateTime);
+
+    const now = new Date();
+    const ageInMonths = getNumberOfMonths(patientBod, now);
+    const adminAgeInMonths = getNumberOfMonths(patientBod, immunizationAdminDate);
+
+    const weeksSinceFirstDose = getNumberOfWeeks(immunizationAdminDate, new Date());
+    expect(patientResult.VaccineName)
+      .toEqual('Measles, Mumps, and Rubella Virus Vaccine');
+    expect(patientResult.InPopulation)
+      .toBeTruthy();
+    expect(ageInMonths)
+      .toBeLessThan(4 * 12);
+    expect(ageInMonths)
+      .toBeGreaterThan(12);
+
+    expect(adminAgeInMonths < 12 || adminAgeInMonths > 15)
+      .toBeTruthy();
+
+    expect(weeksSinceFirstDose)
+      .toBeGreaterThanOrEqual(4);
+    expect(immBundle.entry)
+      .toHaveLength(1);
+    expect(patientResult.Recommendations)
+      .toHaveLength(1);
+    expect(patientResult.Recommendations[0].recommendation)
+      .toEqual(expect.stringContaining('Administer 2nd dose MMR'));
+  });
+  test('VaccineName should be Measles, Mumps, and Rubella Virus Vaccine, Patient birthdate should be > 12 mon AND < 4 yr, Single does of MMR administered at 12 - 15 mon of age, Recommendation should be Schedule 2nd dose 4-6 yr of age', async () => {
+    const rule = elms.MMR5regular12months_4yrs_OneDoseOutOf12to15MonRecommendation;
+    const patient = patientBundles.MMR5regular12months_4yrs_OneDoseOutOf12to15MonRecommendation2.entry[0].resource;
+
+    const immunization = patientBundles.MMR5regular12months_4yrs_OneDoseOutOf12to15MonRecommendation2.entry[1].resource;
+    const immBundle = {
+      resourceType: 'Bundle',
+      entry: [{ resource: immunization }],
+    };
+    const libraries = {
+      FHIRHelpers: elms.FHIRHelpers,
+      Common: elms.MMR_Common_Library,
+    };
+    const codeService = new vsac.CodeService(VALUESETS_CACHE, true);
+    const result = await executeCql(patient, rule, libraries, { Imm: immBundle }, codeService, API_KEY);
+
+    const patientResult = result[patient.id];
+
+    const patientBod = new Date(patient.birthDate);
+    const immunizationAdminDate = new Date(immunization.occurrenceDateTime);
+
+    const now = new Date();
+    const ageInMonths = getNumberOfMonths(patientBod, now);
+    const adminAgeInMonths = getNumberOfMonths(patientBod, immunizationAdminDate);
+
+    const weeksSinceFirstDose = getNumberOfWeeks(immunizationAdminDate, new Date());
+    expect(patientResult.VaccineName)
+      .toEqual('Measles, Mumps, and Rubella Virus Vaccine');
+    expect(patientResult.InPopulation)
+      .toBeTruthy();
+    expect(ageInMonths)
+      .toBeLessThan(4 * 12);
+    expect(ageInMonths)
+      .toBeGreaterThan(12);
+
+    expect(adminAgeInMonths < 12 || adminAgeInMonths > 15)
+      .toBeTruthy();
+
+    expect(weeksSinceFirstDose)
+      .toBeGreaterThanOrEqual(4);
+    expect(immBundle.entry)
+      .toHaveLength(1);
+    expect(patientResult.Recommendations)
+      .toHaveLength(1);
+    expect(patientResult.Recommendations[0].recommendation)
+      .toEqual(expect.stringContaining('Administer 2nd dose MMR'));
+  });
+
 });
+
+describe('MMR Rule 9 Tests ', () => {
+  test('VaccineName should be Measles, Mumps, and Rubella Virus Vaccine, with Pregnancy Condition, No previous dose, Recommendation should be Schedule/admin 1st dose after pregnancy AND Schedule 2nd dose >= 4 wk of 1st dose', async () => {
+
+    const rule = elms.MMR9MedicalContraPrecautionMMRRecommendation;
+    const patient = patientBundles.MMR9MedicalContraPrecautionMMRRecommendation.entry[0].resource;
+
+    // const patient = firstPatientBundle.entry[0].resource;
+    const condition = patientBundles.MMR9MedicalContraPrecautionMMRRecommendation.entry[1].resource;
+
+    const libraries = {
+      FHIRHelpers: elms.FHIRHelpers,
+      Common: elms.MMR_Common_Library,
+    };
+    const codeService = new vsac.CodeService(VALUESETS_CACHE, true, true);
+    const result = await executeCql(patient, rule, libraries, {
+      Imm: [],
+      Conditions: [condition],
+    }, codeService, API_KEY);
+    const patientResult = result[patient.id];
+
+    expect(patientResult.Recommendations)
+      .toHaveLength(2);
+    expect(patientResult.Recommendations[0].recommendation)
+      .toEqual(expect.stringContaining('Recommendation 1: Schedule 1st dose MMR after pregnancy'));
+
+    expect(patientResult.Recommendations[1].recommendation)
+      .toEqual(expect.stringContaining('Recommendation 2: Schedule 2nd dose MMR after 4 weeks of 1st dose'));
+  });
+});
+
