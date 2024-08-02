@@ -5,19 +5,9 @@ const dotenv = require('dotenv');
 const path = require('path');
 const fs = require('fs');
 const yaml = require('js-yaml');
-const cql = require('cql-execution');
-const cqlfhir = require('cql-exec-fhir');
 const vsac = require('cql-exec-vsac');
-const date = require('date-and-time');
 const {
-  createBundle,
-  getCurrentTimestamp,
   executeCql,
-  getListOfExpectedParameters,
-  getListOfExpectedLibraries,
-  FhirTypes,
-  UsageStatus,
-  ContainerTypes,
 } = require('cdss-common/src/cdss-module');
 const yaml2fhir = require('../src/yaml2fhir/yaml2fhir');
 const {
@@ -30,6 +20,8 @@ const {
   getNumberOfMonths,
   getNumberOfWeeks,
 } = require('./timeUtil');
+
+
 // Initialize the env variables
 dotenv.config();
 
@@ -554,7 +546,7 @@ describe('MMR Rule 12 Tests ', () => {
     const codeService = new vsac.CodeService(VALUESETS_CACHE, true, true);
     const result = await executeCql(patient, rule, libraries, {
       Conditions: [condition],
-      Observations: []
+      Observations: [],
     }, codeService, API_KEY);
     const patientResult = result[patient.id];
 

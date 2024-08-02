@@ -79,6 +79,7 @@ async function translateCQL() {
     }
 
     cqlRequestBody[path.basename(cqlFilePath, '.cql')] = {
+
       cql: fs.readFileSync(cqlFilePath, 'utf8'), path: path.relative(cqlPathString, cqlFilePath),
     };
   });
