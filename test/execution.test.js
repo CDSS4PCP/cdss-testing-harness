@@ -1,6 +1,4 @@
 const dotenv = require('dotenv');
-// const { execute } = require('../src/execution');
-// const { defaultLoadElm, defaultLoadPatients } = require('../src/fixtureLoader');
 
 const path = require('path');
 const fs = require('fs');
@@ -15,12 +13,9 @@ const {
   defaultLoadPatients,
 } = require('../src');
 const {
-  getCurrentTime,
-  getNumberOfDays,
   getNumberOfMonths,
   getNumberOfWeeks,
 } = require('./timeUtil');
-
 
 // Initialize the env variables
 dotenv.config();
@@ -29,12 +24,15 @@ const API_KEY = process.env.VSAC_API_KEY;
 const VALUESETS_CACHE = process.env.VALUESETS;
 let elms;
 let patientBundles;
+let now;
 
 beforeAll(() => {
+  // Setup today's date for tests that use time based calculations
+  now = new Date(2024, 8, 5); // Attention: This may need to be modified based on the nature of tests
+
   // Set up necessary data for cql-execution
   elms = defaultLoadElm();
 
-  // patientBundles = defaultCustomPatients();
   const bundles = defaultLoadPatients();
   patientBundles = {};
   bundles.forEach((bundle) => {
@@ -56,12 +54,9 @@ describe('MMR Rule 1 Tests', () => {
     expect(result)
       .not
       .toBeNull();
-    // console.log(JSON.stringify(result, null, 2));
     const patientResult = result[patient.id];
 
     const patientBod = new Date(patient.birthDate);
-
-    const now = new Date();
 
     const ageInMonths = getNumberOfMonths(patientBod, now);
 
@@ -100,8 +95,6 @@ describe('MMR Rule 2 Tests ', () => {
 
     const patientBod = new Date(patient.birthDate);
 
-    const now = new Date();
-
     const ageInMonths = getNumberOfMonths(patientBod, now);
     expect(patientResult.VaccineName)
       .toEqual('Measles, Mumps, and Rubella Virus Vaccine');
@@ -137,8 +130,6 @@ describe('MMR Rule 3 Tests ', () => {
     const patientResult = result[patient.id];
 
     const patientBod = new Date(patient.birthDate);
-
-    const now = new Date();
 
     const ageInMonths = getNumberOfMonths(patientBod, now);
     expect(patientResult.VaccineName)
@@ -181,7 +172,6 @@ describe('MMR Rule 4 Tests ', () => {
     const patientBod = new Date(patient.birthDate);
     const immunizationAdminDate = new Date(immunization.occurrenceDateTime);
 
-    const now = new Date();
     const ageInMonths = getNumberOfMonths(patientBod, now);
     const adminAgeInMonths = getNumberOfMonths(patientBod, immunizationAdminDate);
 
@@ -226,7 +216,6 @@ describe('MMR Rule 5 Tests ', () => {
     const patientBod = new Date(patient.birthDate);
     const immunizationAdminDate = new Date(immunization.occurrenceDateTime);
 
-    const now = new Date();
     const ageInMonths = getNumberOfMonths(patientBod, now);
     const adminAgeInMonths = getNumberOfMonths(patientBod, immunizationAdminDate);
 
@@ -273,7 +262,6 @@ describe('MMR Rule 5 Tests ', () => {
     const patientBod = new Date(patient.birthDate);
     const immunizationAdminDate = new Date(immunization.occurrenceDateTime);
 
-    const now = new Date();
     const ageInMonths = getNumberOfMonths(patientBod, now);
     const adminAgeInMonths = getNumberOfMonths(patientBod, immunizationAdminDate);
 
@@ -324,7 +312,6 @@ describe('MMR Rule 6 Tests ', () => {
     const patientBod = new Date(patient.birthDate);
     const immunizationAdminDate = new Date(immunization.occurrenceDateTime);
 
-    const now = new Date();
     const ageInMonths = getNumberOfMonths(patientBod, now);
     const adminAgeInMonths = getNumberOfMonths(patientBod, immunizationAdminDate);
 
@@ -374,7 +361,6 @@ describe('MMR Rule 7 Tests ', () => {
     const patientBod = new Date(patient.birthDate);
     const immunizationAdminDate = new Date(immunization.occurrenceDateTime);
 
-    const now = new Date();
     const ageInMonths = getNumberOfMonths(patientBod, now);
 
     const weeksSinceFirstDose = getNumberOfWeeks(immunizationAdminDate, new Date());
@@ -420,7 +406,6 @@ describe('MMR Rule 8 Tests ', () => {
     const patientBod = new Date(patient.birthDate);
     const immunizationAdminDate = new Date(immunization.occurrenceDateTime);
 
-    const now = new Date();
     const ageInMonths = getNumberOfMonths(patientBod, now);
 
     const weeksSinceFirstDose = getNumberOfWeeks(immunizationAdminDate, new Date());
@@ -550,7 +535,7 @@ describe('MMR Rule 12 Tests ', () => {
     }, codeService, API_KEY);
     const patientResult = result[patient.id];
 
-    console.log(JSON.stringify(patientResult, null, 2));
+    // console.log(JSON.stringify(patientResult, null, 2));
     // expect(patientResult.Recommendations)
     //   .toHaveLength(1);
     // expect(patientResult.Recommendations[0].recommendation)

@@ -1,7 +1,7 @@
 {
-  "name": "cql-testing-harness",
-  "version": "0.0.4",
-  "description": "A tool for testing the development of CQL libraries",
+  "name": "cdss-testing-harness",
+  "version": "1.0.0",
+  "description": "A tool for testing the development of CQL libraries, specifically for the CDSS4PCP project",
   "main": "./src/index.js",
   "bin": {
     "test-cql": "./src/scripts/run.js",
@@ -21,14 +21,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mcode/cql-testing-harness.git"
+    "url": "git+https://github.com/sorliog/cdss-testing-harness.git"
   },
-  "author": "",
-  "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/mcode/cql-testing-harness/issues"
-  },
-  "homepage": "https://github.com/mcode/cql-testing-harness#readme",
+  "author": "sorliog",
+
+  "homepage": "https://github.com/sorliog/cdss-testing-harness/blob/master/README.md",
   "dependencies": {
     "cdss-common": "file:../EMR_EHR4CDSSPCP/Common/cdss-common",
     "cql-exec-fhir": "^2.0.0",
