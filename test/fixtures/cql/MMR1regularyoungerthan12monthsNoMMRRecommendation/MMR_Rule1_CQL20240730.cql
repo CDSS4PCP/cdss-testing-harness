@@ -15,13 +15,12 @@ parameter Imm List<Immunization>
 context Patient
 
 
-//define "allSets":
-//    Common.MMR_All_Valuesets
 
 define "VaccineName":
     'Measles, Mumps, and Rubella Virus Vaccine'
 
-
+define "PatientAge":
+    AgeInMonths()
 
 define "CurrentAge":
   AgeInMonths() >= 0

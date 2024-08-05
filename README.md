@@ -196,7 +196,7 @@ Wrote ELM to C:\Users\C2\Documents\Clemson\Assistantship\cdss-testing-harness\te
 Wrote ELM to C:\Users\C2\Documents\Clemson\Assistantship\cdss-testing-harness\test\fixtures\elm\MMR1\MMR1.json
 Wrote ELM to C:\Users\C2\Documents\Clemson\Assistantship\cdss-testing-harness\test\fixtures\elm\MMR_Common_Library.json
 > Running unit tests
- PASS  test/execution.test.js
+ PASS  test/MMR_Positive.test.js
   MMR Rule 1 Tests
     √ VaccineName should be Measles, Mumps, and Rubella Virus Vaccine, Patient birthdate should be < 12 mon, No previous dose, Recommendations should be Schedule 1st dose 12-15 mon of age AND Schedule 2nd dose 4-6 yr of age (134 ms)                                                                                                                                                                                                                                
 

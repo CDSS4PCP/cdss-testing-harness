@@ -1,13 +1,9 @@
 const dotenv = require('dotenv');
 
-const path = require('path');
-const fs = require('fs');
-const yaml = require('js-yaml');
 const vsac = require('cql-exec-vsac');
 const {
   executeCql,
 } = require('cdss-common/src/cdss-module');
-const yaml2fhir = require('../src/yaml2fhir/yaml2fhir');
 const {
   defaultLoadElm,
   defaultLoadPatients,
@@ -30,8 +26,8 @@ let now;
 
 beforeAll(() => {
   // Setup today's date for tests that use time based calculations
-  now =  new Date('2024-08-05'); // ATTENTION: This may need to be modified based on the tests
-
+  now = new Date('2024-08-05'); // ATTENTION: This may need to be modified based on the tests
+  // now = new Date();
   // Set up necessary data for cql-execution
   elms = defaultLoadElm();
 
@@ -352,7 +348,7 @@ describe('MMR Rule 7:\n\tVaccineName should be Measles, Mumps, and Rubella Virus
 
     const ageInMonths = getNumberOfMonths(patientBod, now);
 
-    const weeksSinceFirstDose = getNumberOfWeeks(immunizationAdminDate,now);
+    const weeksSinceFirstDose = getNumberOfWeeks(immunizationAdminDate, now);
     expect(patientResult.VaccineName)
       .toEqual('Measles, Mumps, and Rubella Virus Vaccine');
     expect(patientResult.InPopulation)
@@ -377,7 +373,6 @@ describe('MMR Rule 8:\n\tVaccineName should be Measles, Mumps, and Rubella Virus
   test('Testing age, recommendations when single dose of MMR was administered', async () => {
     const rule = elms.MMR8regular4_18yrs_OneDoseRecommendation;
     const patient = patientBundles.MMR8regular4_18yrs_OneDoseRecommendation.entry[0].resource;
-
     const immunization = patientBundles.MMR8regular4_18yrs_OneDoseRecommendation.entry[1].resource;
     const immBundle = {
       resourceType: 'Bundle',
@@ -423,7 +418,6 @@ describe('MMR Rule 9:\n\tVaccineName should be Measles, Mumps, and Rubella Virus
 
     const condition = patientBundles.MMR9MedicalContraPrecautionMMRRecommendation.entry[1].resource;
 
-
     const codeService = new vsac.CodeService(VALUESETS_CACHE, true, true);
     const result = await executeCql(patient, rule, libraries, {
       Imm: [],
@@ -450,7 +444,6 @@ describe('MMR Rule 10:\n\tVaccineName should be Measles, Mumps, and Rubella Viru
     const condition = patientBundles.MMR10MedicalContraPrecautionMMRRecommendation.entry[1].resource;
     const immunization = patientBundles.MMR10MedicalContraPrecautionMMRRecommendation.entry[2].resource;
 
-
     const codeService = new vsac.CodeService(VALUESETS_CACHE, true, true);
     const result = await executeCql(patient, rule, libraries, {
       Imm: [immunization],
@@ -473,7 +466,6 @@ describe('MMR Rule 11:\n\tVaccineName should be Measles, Mumps, and Rubella Viru
     const patient = patientBundles.MMR11MedicalContraPrecautionMMRRecommendation_Immunocompromised.entry[0].resource;
 
     const condition = patientBundles.MMR11MedicalContraPrecautionMMRRecommendation_Immunocompromised.entry[1].resource;
-
 
     const codeService = new vsac.CodeService(VALUESETS_CACHE, true, true);
     const result = await executeCql(patient, rule, libraries, {
@@ -498,7 +490,6 @@ describe('MMR Rule 12:\n\tVaccineName should be Measles, Mumps, and Rubella Viru
     // const patient = firstPatientBundle.entry[0].resource;
     const condition = patientBundles.MMR12MedicalContraPrecautionMMRRecommendation_HIVImmunocompromised.entry[1].resource;
 
-
     const codeService = new vsac.CodeService(VALUESETS_CACHE, true, true);
     const result = await executeCql(patient, rule, libraries, {
       Conditions: [condition],
@@ -520,7 +511,6 @@ describe('MMR Rule 12:\n\tVaccineName should be Measles, Mumps, and Rubella Viru
     const patient = patientBundles.MMR12MedicalContraPrecautionMMRRecommendation_HIVImmunocompromised2.entry[0].resource;
 
     const observation = patientBundles.MMR12MedicalContraPrecautionMMRRecommendation_HIVImmunocompromised2.entry[1].resource;
-
 
     const codeService = new vsac.CodeService(VALUESETS_CACHE, true, true);
     const result = await executeCql(patient, rule, libraries, {

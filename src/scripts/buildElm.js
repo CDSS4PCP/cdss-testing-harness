@@ -90,7 +90,7 @@ async function translateCQL() {
       throw resp;
     }
     Object.keys(cqlRequestBody).forEach((key) => resp[key].path = cqlRequestBody[key].path);
-    // Else we have our resulting elm
+    // Else we have our resulting MMR_Rule1_CQL20240730.json
     return resp;
   }
 
