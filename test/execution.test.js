@@ -29,22 +29,28 @@ let now;
 
 beforeAll(() => {
   // Setup today's date for tests that use time based calculations
-  now = new Date(2024, 8, 5); // Attention: This may need to be modified based on the nature of tests
+  now = new Date(2024, 8, 5); // ATTENTION: This may need to be modified based on the tests
 
   // Set up necessary data for cql-execution
   elms = defaultLoadElm();
 
+  // Load patients
   const bundles = defaultLoadPatients();
+
+  // Group patientBundles by bundle Id
   patientBundles = {};
   bundles.forEach((bundle) => {
     patientBundles[bundle.id] = bundle;
   });
 
+  // Define libraries
   libraries = {
     FHIRHelpers: elms.FHIRHelpers,
     Common: elms.MMR_Common_Library,
   };
 });
+
+// Tests using JEST (https://jestjs.io/docs/getting-started)
 
 describe('MMR Rule 1\n\tVaccineName should be Measles, Mumps, and Rubella Virus Vaccine, Patient birthdate should be < 12 mon, No previous dose, Recommendations should be Schedule 1st dose 12-15 mon of age AND Schedule 2nd dose 4-6 yr of age', () => {
   test('Testing age and recommendation', async () => {
@@ -106,7 +112,7 @@ describe('MMR Rule 2:\n\tVaccineName should be Measles, Mumps, and Rubella Virus
     expect(patientResult.Recommendations)
       .toHaveLength(2);
     expect(patientResult.Recommendations[0].recommendation)
-      .toEqual(expect.stringContaining('Recommendation 1: Adminster 1st dose'));
+      .toEqual(expect.stringContaining('Recommendation 1: Administer 1st dose'));
 
     expect(patientResult.Recommendations[1].recommendation)
       .toEqual(expect.stringContaining('Schedule 2nd dose 4-6 yr of age'));
@@ -139,7 +145,7 @@ describe('MMR Rule 3:\n\tVaccineName should be Measles, Mumps, and Rubella Virus
     expect(patientResult.Recommendations)
       .toHaveLength(2);
     expect(patientResult.Recommendations[0].recommendation)
-      .toEqual(expect.stringContaining('Recommendation 1: Adminster 1 dose'));
+      .toEqual(expect.stringContaining('Recommendation 1: Administer 1 dose'));
 
     expect(patientResult.Recommendations[1].recommendation)
       .toEqual(expect.stringContaining('Recommendation 2: Schedule 2nd dose > = 4 wk of 1st dose'));
