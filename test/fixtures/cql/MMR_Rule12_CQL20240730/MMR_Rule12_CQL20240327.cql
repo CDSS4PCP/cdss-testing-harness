@@ -8,10 +8,6 @@ include "FHIRHelpers" version '4.0.1' called FHIRHelpers
 
 codesystem "CONDCLINSTATUS": 'http://terminology.hl7.org/CodeSystem/condition-clinical'
 
-valueset "CD4 Percentage VS": 'https://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.121.12.1005'
-valueset "CD4+ Percentage VS": 'https://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.121.11.1009'
-valueset "CD4 Count VS": 'https://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.121.12.1004'
-valueset "CD4+ Count VS": 'https://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.121.11.1006'
 
 parameter Conditions List<Condition>
 parameter Observations List<Observation>
@@ -29,11 +25,16 @@ define function ActiveCondition(CondList List<Condition>):
       and C.abatement is null
 
 
- define "HIV_or_AIDS":
+ define "HIV_or_AIDS_Condition":
   Count(Common.FindValidHivAidsCondition(ActiveCondition(Conditions))) > 0
 
+
+define "HIV_or_AIDS_Observation":
+    Count(Common.FindValidHivAidsObservation(Observations)) > 0
+
+
 define "InPopulation":
-   HIV_or_AIDS
+   HIV_or_AIDS_Condition or "HIV_or_AIDS_Observation"
 
 define "Recommendation1":
     if InPopulation then
@@ -42,38 +43,5 @@ define "Recommendation1":
         null
 
 
-//
-//
-//
-//
-//define function HighestObservation(Observation List<Observation>):
-//  Max(Observation O where  FHIRHelpers.ToQuantity(O.valueQuantity as FHIR.Quantity) is not null)
-//
-//define "CD4 Percentage":
-//   (HighestObservation([Observation: "CD4 Percentage VS"]) < 15%)
-//   or
-//  (HighestObservation([Observation: "CD4+ Percentage VS"]) < 15%)
-//
-//
-//
-//
-//
-//define "CD4 Count":
-//    ((HighestObservation([Observation: "CD4 Count VS"]) < 200/mm3)
-//  or
-//  (HighestObservation([Observation: "CD4+ Count VS"]) < 200/mm3)) is not null
-//
-//
-//define "total_CD4":
-// exists (Observation obs
-// where (obs) in ("CD4 Percentage" union "CD4 Count") )
-//
-//
-//
-//define "InPopulation":
-//   total_CD4 and HIV_or_AIDS
-//
-//
-//define "Recommendation 1: DO NOT ADMINISTER OR SCHEDULE MMR":
-//   InPopulation
+
 

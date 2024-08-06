@@ -1,0 +1,58 @@
+{
+  "resourceType": "Bundle",
+  "id": "MMR12MedicalContraPrecautionMMRRecommendation_HIVImmunocompromised3",
+  "type": "collection",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:patient-1",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "77f19825-db1f-4f92-9f4c-2e64e412bf2a",
+        "name": [
+          {
+            "given": [
+              "Jill"
+            ],
+            "family": "Smith"
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1998-07-12"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:observation-1",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "f723c5da-3585-4155-9d08-e7b408fd0224",
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8123-2",
+              "display": "CD3+CD4+ (T4 helper) cells/100 cells in Blood"
+            }
+          ],
+          "text": "CD3+CD4+ (T4 helper) cells/100 cells in Blood"
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/observation-category",
+                "code": "laboratory"
+              }
+            ]
+          }
+        ],
+        "valueQuantity": {
+          "value": 10,
+          "unit": "%",
+          "code": "%"
+        },
+        "issued": "2024-08-5"
+      }
+    }
+  ]
+}
