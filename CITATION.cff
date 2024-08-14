@@ -1,8 +1,22 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
 cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
+title: cdss-testing-harness
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
 authors:
   - family-names: Orlioglu
     given-names: Samuil
-title: "cdss-testing-harness"
-version: 1.0.0
-date-released: 2024-08-14
+    affiliation: Clemson University
+repository-code: 'https://github.com/sorliog/cdss-testing-harness'
+abstract: >-
+  A utility for translating, executing, and testing CQL
+  libraries, specifically for the CDSS4PCP project
+keywords:
+  - CDS
+  - CQL
+  - FHIR
+  - Unit Test
