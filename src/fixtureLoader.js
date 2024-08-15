@@ -1,5 +1,7 @@
 const fs = require('fs');
 const path = require('path');
+const yaml2fhir = require('./yaml2fhir/yaml2fhir');
+const yaml = require('js-yaml');
 
 /**
  * Recursively load a directory of JSON files
@@ -17,6 +19,46 @@ function loadJSONFromDirectory(pathToDir) {
   const directoryContents = directories.map((f) => loadJSONFromDirectory(path.join(pathToDir, f)));
 
   const selfContents = filesInDir.map((f) => JSON.parse(fs.readFileSync(path.join(pathToDir, f), 'utf8')));
+
+  return [...directoryContents, ...selfContents].flat();
+}
+
+/**
+ * Recursively load a directory of JSON files
+ *
+ * @param {string} pathToDir absolute path from the caller of where directory is located
+ * @returns {Array} array of JSON parsed fixtures
+ */
+function loadYAMLFromDirectory(pathToDir) {
+  const filesInDir = fs.readdirSync(pathToDir)
+    .filter((f) => path.extname(f) === '.yaml');
+  const directories = fs.readdirSync(pathToDir)
+    .filter((f) => fs.lstatSync(path.join(pathToDir, f))
+      .isDirectory());
+
+  const directoryContents = directories.map((f) => loadYAMLFromDirectory(path.join(pathToDir, f)));
+
+  const selfContents = filesInDir.map((f) => {
+
+    const yamlContent = fs.readFileSync(path.join(pathToDir, f));
+    const yamlObject = yaml.load(yamlContent);
+    let bundle = {
+      id: yamlObject.id,
+      resourceType: 'Bundle',
+      entry: [],
+    };
+    for (const entry of yamlObject.entry) {
+      if (entry.resource != null) {
+        const result = yaml2fhir(entry.resource, null, 'r4');
+        bundle.entry.push({
+          fullUrl: entry.fullUrl,
+          resource: result,
+        });
+      }
+    }
+    return bundle;
+
+  }, 'utf8');
 
   return [...directoryContents, ...selfContents].flat();
 }
@@ -62,6 +104,9 @@ function defaultLoadPatients() {
   }
   const patientsPath = path.resolve(process.cwd(), process.env.PATIENTS);
   let patients = loadJSONFromDirectory(patientsPath);
+
+  let patients2 = loadYAMLFromDirectory(patientsPath);
+  patients.push(patients2);
   return patients;
 }
 

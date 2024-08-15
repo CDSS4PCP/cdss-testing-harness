@@ -13,6 +13,11 @@ parameter Conditions List<Condition>
 context Patient
 
 
+
+define "VaccineName":
+    'Measles, Mumps, and Rubella Virus Vaccine'
+
+
 define "MMR_Vaccine_OneDose":
   Count(Common.FindValidVaccines(Imm)) = 1
 

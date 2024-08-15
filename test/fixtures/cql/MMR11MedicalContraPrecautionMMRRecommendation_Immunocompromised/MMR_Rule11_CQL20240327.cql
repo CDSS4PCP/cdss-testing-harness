@@ -14,15 +14,21 @@ parameter Conditions List<Condition>
 
 context Patient
 
+
+
+define "VaccineName":
+    'Measles, Mumps, and Rubella Virus Vaccine'
+
+
 define "InPopulation":
    Count(Common.FindValidImmunocompromisedCondition(Conditions)) > 0
 
 
-   /*
-   rationale
-   If patient does not have MMR or MMRV records and patient is pregnant, schedule 1st dose of MMR after pregnancy and 2nd dose after 4 weeks of the 1st dose
+/*
+rationale
+If patient does not have MMR or MMRV records and patient is pregnant, schedule 1st dose of MMR after pregnancy and 2nd dose after 4 weeks of the 1st dose
 
-   */
+*/
 
 define "Recommendation1":
     if InPopulation then
