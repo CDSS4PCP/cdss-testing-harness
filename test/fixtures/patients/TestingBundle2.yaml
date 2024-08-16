@@ -1,0 +1,21 @@
+---
+name: Brenda Jackson
+
+data:
+  -
+    resourceType: Patient
+    name: Brenda Jackson
+    gender: female
+    birthDate: 1956-10-14
+  -
+    # Conditions Associated w/ Chronic Pain
+    resourceType: Condition
+    code: SNOMED#203082005 Fibromyalgia (disorder)
+    onsetDateTime: 2013-04-05T16:00:00.000+00:00
+    recordedDate: 2013-04-05
+  -
+    resourceType: Condition
+    code: ICD10CM#M54.5 Low back pain
+    onsetDateTime: 2008-11-12T16:00:00.000+00:00
+    recordedDate: 2008-11-12
+  -

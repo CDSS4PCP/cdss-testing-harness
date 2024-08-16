@@ -2,6 +2,13 @@ const fs = require('fs');
 const path = require('path');
 const yaml2fhir = require('./yaml2fhir/yaml2fhir');
 const yaml = require('js-yaml');
+const { v4: uuidv4 } = require('uuid');
+
+const NULL_URL = '#null';
+
+function getId(id) {
+  return id ? id : uuidv4();
+}
 
 /**
  * Recursively load a directory of JSON files
@@ -38,12 +45,20 @@ function loadYAMLFromDirectory(pathToDir) {
 
   const directoryContents = directories.map((f) => loadYAMLFromDirectory(path.join(pathToDir, f)));
 
-  const selfContents = filesInDir.map((f) => {
+  const selfContents = filesInDir.map((f) => loadYAMLFromFile(path.join(pathToDir, f)), 'utf8');
 
-    const yamlContent = fs.readFileSync(path.join(pathToDir, f));
-    const yamlObject = yaml.load(yamlContent);
+  return [...directoryContents, ...selfContents].flat();
+  // return selfContents;
+}
+
+function loadYAMLFromFile(pathToFile) {
+
+  const yamlContent = fs.readFileSync(pathToFile);
+  const yamlObject = yaml.load(yamlContent);
+
+  if (yamlObject && yamlObject.resourceType == 'Bundle') {
     let bundle = {
-      id: yamlObject.id,
+      id: yamlObject.id ? yamlObject.id : uuidv4(),
       resourceType: 'Bundle',
       entry: [],
     };
@@ -51,16 +66,30 @@ function loadYAMLFromDirectory(pathToDir) {
       if (entry.resource != null) {
         const result = yaml2fhir(entry.resource, null, 'r4');
         bundle.entry.push({
-          fullUrl: entry.fullUrl,
+          fullUrl: entry.fullUrl ? entry.fullUrl : NULL_URL,
           resource: result,
         });
       }
     }
     return bundle;
+  } else if (yamlObject && yamlObject.data) {
+    let bundle = {
+      id: yamlObject.id ? yamlObject.id : uuidv4(),
+      resourceType: 'Bundle',
+      entry: [],
+    };
+    for (const entry of yamlObject.data) {
+      if (entry != null) {
+        const result = yaml2fhir(entry, null, 'r4');
+        bundle.entry.push({
+          fullUrl: entry.fullUrl ? entry.fullUrl : NULL_URL,
+          resource: result,
+        });
+      }
+    }
+    return bundle;
+  }
 
-  }, 'utf8');
-
-  return [...directoryContents, ...selfContents].flat();
 }
 
 /**
