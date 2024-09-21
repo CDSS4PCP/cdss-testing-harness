@@ -56,5 +56,6 @@ define "Recommendation1":
 define "Recommendation2":
     if InPopulation then
         'Recommendation 2: Schedule 2nd dose MMR after 4 weeks of 1st dose'
-    else null
+    else
+        null
 

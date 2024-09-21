@@ -43,5 +43,6 @@ define "InPopulation":
 define "Recommendation1":
     if InPopulation then
         'Schedule/admininster 2nd dose after pregnancy, >= 4 wk of 1st dose'
-    else null
+    else
+        null
 

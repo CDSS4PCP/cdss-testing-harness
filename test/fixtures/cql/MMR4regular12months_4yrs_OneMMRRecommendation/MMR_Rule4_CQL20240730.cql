@@ -118,4 +118,4 @@ define "Recommendation":
     if InPopulation then
         'Recommendation 1: Schedule 2nd dose MMR when patient is 4-6 years old'
     else
-        'Does not apply'
+        null

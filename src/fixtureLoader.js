@@ -135,7 +135,7 @@ function defaultLoadPatients() {
   let patients = loadJSONFromDirectory(patientsPath);
 
   let patients2 = loadYAMLFromDirectory(patientsPath);
-  patients.push(patients2);
+  patients.push(...patients2);
   return patients;
 }
 
