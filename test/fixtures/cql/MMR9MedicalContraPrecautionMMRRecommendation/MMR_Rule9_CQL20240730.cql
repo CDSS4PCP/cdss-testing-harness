@@ -15,6 +15,10 @@ parameter Conditions List<Condition>
 context Patient
 
 
+define "VaccineName":
+    'Measles, Mumps, and Rubella Virus Vaccine'
+
+
 
 define "PregValusets":
     Common.Pregnacy_All_Valuesets
@@ -37,11 +41,11 @@ define "InPopulation":
    MMRVaccine_NonExist and Pregnant_Exist
 
 
-   /*
-   rationale
-   If patient does not have MMR or MMRV records and patient is pregnant, schedule 1st dose of MMR after pregnancy and 2nd dose after 4 weeks of the 1st dose
+/*
+rationale
+If patient does not have MMR or MMRV records and patient is pregnant, schedule 1st dose of MMR after pregnancy and 2nd dose after 4 weeks of the 1st dose
 
-   */
+*/
 
 
 define "Recommendation1":
@@ -52,5 +56,6 @@ define "Recommendation1":
 define "Recommendation2":
     if InPopulation then
         'Recommendation 2: Schedule 2nd dose MMR after 4 weeks of 1st dose'
-    else null
+    else
+        null
 

@@ -57,7 +57,7 @@ define "InPopulation":
 
 define "Recommendation1":
     if InPopulation then
-        'Recommendation 1: Adminster 1st dose'
+        'Recommendation 1: Administer 1st dose'
     else
         null
 

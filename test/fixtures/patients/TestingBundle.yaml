@@ -1,0 +1,24 @@
+---
+id: TestingBundle
+resourceType: Bundle
+type: collection
+entry:
+  -
+    fullUrl: 'urn:uuid:patient-1'
+    resource:
+      resourceType: Patient
+      name: Joe Smith
+      gender: male
+      birthDate: 2003-02-16
+  -
+    fullUrl: 'urn:uuid:medicationrequest-1'
+    resource:
+      resourceType: MedicationRequest
+      code: RXNORM#197591 Diazepam 5 MG Oral Tablet
+      authoredOn: 2018-12-05
+  -
+    fullUrl: 'urn:uuid:medicationrequest-2'
+    resource:
+      resourceType: MedicationRequest
+      code: RXNORM#1001437 caffeine 50 MG / magnesium salicylate 162.5 MG Oral Tablet
+      authoredOn: 2018-12-05

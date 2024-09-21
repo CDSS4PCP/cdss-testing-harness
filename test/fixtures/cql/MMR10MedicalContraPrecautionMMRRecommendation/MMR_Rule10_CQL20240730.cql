@@ -13,6 +13,11 @@ parameter Conditions List<Condition>
 context Patient
 
 
+
+define "VaccineName":
+    'Measles, Mumps, and Rubella Virus Vaccine'
+
+
 define "MMR_Vaccine_OneDose":
   Count(Common.FindValidVaccines(Imm)) = 1
 
@@ -38,5 +43,6 @@ define "InPopulation":
 define "Recommendation1":
     if InPopulation then
         'Schedule/admininster 2nd dose after pregnancy, >= 4 wk of 1st dose'
-    else null
+    else
+        null
 

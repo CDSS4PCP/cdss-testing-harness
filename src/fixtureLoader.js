@@ -1,5 +1,14 @@
 const fs = require('fs');
 const path = require('path');
+const yaml2fhir = require('./yaml2fhir/yaml2fhir');
+const yaml = require('js-yaml');
+const { v4: uuidv4 } = require('uuid');
+
+const NULL_URL = '#null';
+
+function getId(id) {
+  return id ? id : uuidv4();
+}
 
 /**
  * Recursively load a directory of JSON files
@@ -19,6 +28,68 @@ function loadJSONFromDirectory(pathToDir) {
   const selfContents = filesInDir.map((f) => JSON.parse(fs.readFileSync(path.join(pathToDir, f), 'utf8')));
 
   return [...directoryContents, ...selfContents].flat();
+}
+
+/**
+ * Recursively load a directory of JSON files
+ *
+ * @param {string} pathToDir absolute path from the caller of where directory is located
+ * @returns {Array} array of JSON parsed fixtures
+ */
+function loadYAMLFromDirectory(pathToDir) {
+  const filesInDir = fs.readdirSync(pathToDir)
+    .filter((f) => path.extname(f) === '.yaml');
+  const directories = fs.readdirSync(pathToDir)
+    .filter((f) => fs.lstatSync(path.join(pathToDir, f))
+      .isDirectory());
+
+  const directoryContents = directories.map((f) => loadYAMLFromDirectory(path.join(pathToDir, f)));
+
+  const selfContents = filesInDir.map((f) => loadYAMLFromFile(path.join(pathToDir, f)), 'utf8');
+
+  return [...directoryContents, ...selfContents].flat();
+  // return selfContents;
+}
+
+function loadYAMLFromFile(pathToFile) {
+
+  const yamlContent = fs.readFileSync(pathToFile);
+  const yamlObject = yaml.load(yamlContent);
+
+  if (yamlObject && yamlObject.resourceType == 'Bundle') {
+    let bundle = {
+      id: yamlObject.id ? yamlObject.id : uuidv4(),
+      resourceType: 'Bundle',
+      entry: [],
+    };
+    for (const entry of yamlObject.entry) {
+      if (entry.resource != null) {
+        const result = yaml2fhir(entry.resource, null, 'r4');
+        bundle.entry.push({
+          fullUrl: entry.fullUrl ? entry.fullUrl : NULL_URL,
+          resource: result,
+        });
+      }
+    }
+    return bundle;
+  } else if (yamlObject && yamlObject.data) {
+    let bundle = {
+      id: yamlObject.id ? yamlObject.id : uuidv4(),
+      resourceType: 'Bundle',
+      entry: [],
+    };
+    for (const entry of yamlObject.data) {
+      if (entry != null) {
+        const result = yaml2fhir(entry, null, 'r4');
+        bundle.entry.push({
+          fullUrl: entry.fullUrl ? entry.fullUrl : NULL_URL,
+          resource: result,
+        });
+      }
+    }
+    return bundle;
+  }
+
 }
 
 /**
@@ -62,6 +133,9 @@ function defaultLoadPatients() {
   }
   const patientsPath = path.resolve(process.cwd(), process.env.PATIENTS);
   let patients = loadJSONFromDirectory(patientsPath);
+
+  let patients2 = loadYAMLFromDirectory(patientsPath);
+  patients.push(...patients2);
   return patients;
 }
 
