@@ -124,39 +124,40 @@ describe('MMR Rule 1\n\tVaccineName should be Measles, Mumps, and Rubella Virus 
 
 });
 
-//
-// describe('MMR Rule 2:\n\tVaccineName should be Measles, Mumps, and Rubella Virus Vaccine, Patient birthdate should be >= 12 mon AND <= 47 mon, No previous dose, Recommendations should be Administer 1st dose AND Schedule 2nd dose 4-6 yr of age', () => {
-//   test('Testing age and recommendation', async () => {
-//     const rule = elms.MMR2regularyoungerthan12_47monthsNoMMRRecommendation;
-//     const patient = patientBundles.MMR2regularyoungerthan12_47monthsNoMMRRecommendation.entry[0].resource;
-//
-//     const codeService = new vsac.CodeService(VALUESETS_CACHE, true);
-//     const result = await executeCql(patient, rule, libraries, { 'Imm': [] }, codeService, API_KEY);
-//     expect(result)
-//       .not
-//       .toBeNull();
-//
-//     const patientResult = result[patient.id];
-//
-//     const patientBod = new Date(patient.birthDate);
-//
-//     const ageInMonths = getNumberOfMonths(patientBod, now);
-//     expect(patientResult.VaccineName)
-//       .toEqual('Measles, Mumps, and Rubella Virus Vaccine');
-//     expect(ageInMonths)
-//       .toBeGreaterThanOrEqual(12);
-//     expect(ageInMonths)
-//       .toBeLessThanOrEqual(47);
-//
-//     expect(patientResult.Recommendations)
-//       .toHaveLength(2);
-//     expect(patientResult.Recommendations[0].recommendation)
-//       .toEqual(expect.stringContaining('Recommendation 1: Administer 1st dose'));
-//
-//     expect(patientResult.Recommendations[1].recommendation)
-//       .toEqual(expect.stringContaining('Schedule 2nd dose 4-6 yr of age'));
-//   });
-// });
+
+
+describe('MMR Rule 2:\n\tVaccineName should be Measles, Mumps, and Rubella Virus Vaccine, Patient birthdate should be >= 12 mon AND <= 47 mon, No previous dose, Recommendations should be Administer 1st dose AND Schedule 2nd dose 4-6 yr of age', () => {
+  test('Testing age and recommendation', async () => {
+    const rule = elms.MMR2regularyoungerthan12_47monthsNoMMRRecommendation;
+    const patient = patientBundles.MMR2regularyoungerthan12_47monthsNoMMRRecommendation.entry[0].resource;
+
+    const codeService = new vsac.CodeService(VALUESETS_CACHE, true);
+    const result = await executeCql(patient, rule, libraries, { 'Imm': [] }, codeService, API_KEY);
+    expect(result)
+      .not
+      .toBeNull();
+
+    const patientResult = result[patient.id];
+
+    const patientBod = new Date(patient.birthDate);
+
+    const ageInMonths = getNumberOfMonths(patientBod, now);
+    expect(patientResult.VaccineName)
+      .toEqual('Measles, Mumps, and Rubella Virus Vaccine');
+    expect(ageInMonths)
+      .toBeGreaterThanOrEqual(12);
+    expect(ageInMonths)
+      .toBeLessThanOrEqual(47);
+
+    expect(patientResult.Recommendations)
+      .toHaveLength(2);
+    expect(patientResult.Recommendations[0].recommendation)
+      .toEqual(expect.stringContaining('Recommendation 1: Administer 1st dose'));
+
+    expect(patientResult.Recommendations[1].recommendation)
+      .toEqual(expect.stringContaining('Schedule 2nd dose 4-6 yr of age'));
+  });
+});
 //
 // describe('MMR Rule 3:\n\tVaccineName should be Measles, Mumps, and Rubella Virus Vaccine, Patient birthdate should be > 47 mon AND <= 18 yrs, No previous dose, Recommendations should be Administer 1st dose AND Schedule 2nd dose > = 4 wk of 1st dose ', () => {
 //   test('Testing age and recommendation', async () => {
