@@ -6,11 +6,10 @@ project
 This project is forked from [cql-testing-harness](https://github.com/mcode/cql-testing-harness) and modified for
 additional functionality for testing CDS Vaccine rules.
 
-
 ## Prerequisites
 
 * [Docker](https://docker.com)
-* [Node.js](https://nodejs.org/en/)
+* [Node.js](https://nodejs.org/en/) (v20.15.1 used for development)
 
 Users also need to configure a `.env` file in your CQL repository, defining the following values:
 
@@ -23,19 +22,47 @@ PATIENTS=./test/fixtures/patients                              # Folder storing 
 VSAC_API_KEY=your_key                                          # UMLS API key that will be used to download valuesets. For increased security, store the API key in a env variable instead
 ```
 
-The `INPUT_CQL` value can take multiple directories, separated by a comma, in order to tell the testing harness to look
-in more than one directory for CQL files.
-
-```
-INPUT_CQL='cqlDir1,cqlDir2,cqlDir3'
-```
-
 ## Notable Dependencies
 
 * [cql-exec-vsac](https://www.npmjs.com/package/cql-exec-vsac):  Used for identifying and downloading valuesets within
   CQL rules
 * [cdss-common](https://github.com/xjing16/EMR_EHR4CDSSPCP/tree/main/Common/cdss-common):  The common module that is
   used for executing CQL rules in thee [CDSS4PCP](https://cdss4pcp.com/) project
+
+## Project Structure
+### `src/` directory
+Contains the source code for 
+
+
+### `test/` directory
+* `test/`
+
+    * Root directory for all test-related files.
+
+* `test/fixtures/`
+
+    * Contains static test data for validating CQL logic.
+
+* `test/fixtures/cql/`
+
+    * Contains original CQL files (human-readable clinical logic).
+    *  **Folder name must match the `library` name** in each `.cql` file.
+
+* `test/fixtures/elm/`
+
+    * Contains compiled ELM files (machine-readable JSON).
+    *  **Folder name must match the corresponding CQL library**.
+
+* `test/fixtures/patients/`
+
+    * Contains FHIR/JSON patient examples used to test rules.
+    *  **Folder name must match the CQL library it tests**.
+
+* `test/fixtures/valuesets/`
+
+    * Contains shared ValueSet files (e.g., SNOMED, CVX codes).
+    *  **No strict naming requirement**.
+
 
 ## Usage
 
@@ -209,5 +236,7 @@ Ran all test suites.
 cql-translation-service
 
 ```
+
+## NOTE: Some cql rules rely on date ranges relative to current date. This fact will cause certain tests to fail if the system date is not within the range of the cql file
 
    
