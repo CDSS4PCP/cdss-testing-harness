@@ -27,7 +27,7 @@
 
   "homepage": "https://github.com/sorliog/cdss-testing-harness/blob/master/README.md",
   "dependencies": {
-    "cdss-common": "file:../EMR_EHR4CDSSPCP/Common/cdss-common",
+    "cdss-common": "git+https://github.com/CDSS4PCP/cdss-common.git",
     "cql-exec-fhir": "^2.0.0",
     "cql-exec-vsac": "^2.2.0",
     "cql-execution": "^2.2.0",

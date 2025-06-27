@@ -237,6 +237,9 @@ cql-translation-service
 
 ```
 
-## NOTE: Some cql rules rely on date ranges relative to current date. This fact will cause certain tests to fail if the system date is not within the range of the cql file
+> **Note:** If you get errors similar to `Ran into error when gathering valuesets `, then make you set your VSAC API key correctly.
+--- 
+
+> **Note:** Some cql rules rely on date ranges relative to current date. This fact will cause certain tests to fail if the system date is not within the range of the cql file
 
    
