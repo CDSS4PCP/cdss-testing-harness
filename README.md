@@ -26,7 +26,7 @@ VSAC_API_KEY=your_key                                          # UMLS API key th
 
 * [cql-exec-vsac](https://www.npmjs.com/package/cql-exec-vsac):  Used for identifying and downloading valuesets within
   CQL rules
-* [cdss-common](https://github.com/xjing16/EMR_EHR4CDSSPCP/tree/main/Common/cdss-common):  The common module that is
+* [cdss-common](https://github.com/CDSS4PCP/cdss-common):  The common module that is
   used for executing CQL rules in thee [CDSS4PCP](https://cdss4pcp.com/) project
 
 ## Project Structure
