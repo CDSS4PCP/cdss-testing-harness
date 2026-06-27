@@ -19,26 +19,6 @@
         "gender": "male",
         "birthDate": "2016-07-12"
       }
-    },
-    {
-      "fullUrl": "urn:uuid:immunization-1",
-      "resource": {
-        "resourceType": "Immunization",
-        "id": "a6d0e2b1-03d4-4929-82db-aeae27948ecd",
-        "status": "completed",
-        "primarySource": true,
-        "vaccineCode": {
-          "coding": [
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "94",
-              "display": "measles, mumps, rubella, and varicella virus vaccine"
-            }
-          ],
-          "text": "measles, mumps, rubella, and varicella virus vaccine"
-        },
-        "occurrenceDateTime": "2023-08-12T00:00:00.000Z"
-      }
     }
   ]
 }
